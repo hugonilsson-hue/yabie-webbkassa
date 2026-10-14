@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Webbkassan – statistik</title>
+<style>
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#14171c;--muted:#6b7280;--line:#e5e7eb;--blue:#1677ff;--ok:#16a34a;--bad:#e5484d;--warn:#f59e0b}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1115;--panel:#171a21;--ink:#e8eaee;--muted:#9aa3af;--line:#2a2f3a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 60px}
+h1{font-size:22px;margin:0}h2{font-size:15px;margin:0 0 4px}.sub{color:var(--muted);font-size:13px;margin:4px 0 0}
+header{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}header .sp{flex:1}
+button,select{font:inherit;border:1px solid var(--line);background:var(--panel);color:inherit;border-radius:8px;padding:7px 12px;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}.kpi b{display:block;font-size:26px;font-variant-numeric:tabular-nums}.kpi span{color:var(--muted);font-size:12.5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card.full{grid-column:1/-1}
+.tabs{display:flex;gap:6px;margin:8px 0 10px;flex-wrap:wrap}.tabs button[aria-pressed=true]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:middle}th{font-size:11.5px;color:var(--muted);font-weight:600}
+td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}th.n{text-align:right}
+.bar{position:relative;height:8px;border-radius:9px;background:var(--line);min-width:80px;overflow:hidden}.bar i{position:absolute;inset:0 auto 0 0;border-radius:9px}
+.pill{display:inline-block;font-size:11px;padding:1px 7px;border-radius:99px;background:var(--line);color:var(--muted)}
+.scroll{max-height:520px;overflow:auto}
+.login{max-width:420px;margin:12vh auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.login input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:transparent;color:inherit;margin:10px 0}
+.err{color:var(--bad);font-size:13px;min-height:18px}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="quiz-bank.js"></script>
+<script src="guide-meta.js"></script>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);const e=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LS='kassaskolan-stats-key';
+const hk=new URLSearchParams(location.hash.slice(1)).get('key');if(hk){try{localStorage.setItem(LS,hk)}catch(x){}history.replaceState(null,'',location.pathname)}
+let key='';try{key=localStorage.getItem(LS)||''}catch(x){}
+const APPS={pos:'iPad-kassan',bs:'Backstage',mob:'Mobilkassan'};
+const META=Object.fromEntries((window.GUIDE_META||[]).map(([id,t,a,c,ch])=>[id,{t,a,c,ch}]));
+const qHash=s=>{let h=2166136261;for(const c of String(s)){h^=c.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h.toString(36)};
+const QMAP={};for(const a in (window.QUIZ_SRC||{}))QUIZ_SRC[a].forEach(([q,o])=>QMAP[a+':'+qHash(q)]={q,right:o[0]});
+const pct=x=>Math.round(x*100)+' %';
+let D=null,gApp='pos',qApp='pos';
+
+function login(msg){$('#app').innerHTML=`<div class="login"><h1>Statistik</h1><p class="sub">Skriv in statistiknyckeln för webbkassan.</p><input id="k" type="password" autocomplete="off" placeholder="Nyckel"><div class="err">${e(msg||'')}</div><button id="go">Visa statistik</button></div>`;
+ const go=()=>{key=$('#k').value.trim();try{localStorage.setItem(LS,key)}catch(x){}load()};$('#go').onclick=go;$('#k').onkeydown=ev=>{if(ev.key==='Enter')go()};$('#k').focus()}
+async function load(){if(!key)return login();
+ $('#app').innerHTML='<p class="muted">Hämtar…</p>';
+ try{const r=await fetch('/api/stats',{headers:{'x-stats-key':key}});if(r.status===403)return login('Fel nyckel.');if(!r.ok)throw 0;D=await r.json();render()}catch(x){login('Kunde inte hämta statistiken. Försök igen.')}}
+
+function bar(v,col){return `<div class="bar"><i style="width:${Math.max(0,Math.min(100,v*100))}%;background:${col}"></i></div>`}
+function render(){const T=D.totals;
+ const langs=Object.entries(D.langs||{}).sort((a,b)=>b[1]-a[1]);
+ $('#app').innerHTML=`<header><div><h1>Webbkassan – statistik</h1><p class="sub">Uppdaterad ${e(new Date(D.at).toLocaleString('sv-SE'))}. Anonyma siffror per webbläsare.</p></div><span class="sp"></span><button id="re">Uppdatera</button><button id="out">Logga ut</button></header>
+ <div class="kpis">
+  <div class="kpi"><b>${T.visitors}</b><span>webbläsare totalt</span></div>
+  <div class="kpi"><b>${T.active7}</b><span>aktiva senaste 7 dagarna</span></div>
+  <div class="kpi"><b>${T.active30}</b><span>aktiva senaste 30 dagarna</span></div>
+  <div class="kpi"><b>${T.groups}</b><span>grupper (${T.groupsActive30} aktiva)</span></div>
+  <div class="kpi"><b>${T.members}</b><span>anställda i grupper</span></div>
+  <div class="kpi"><b>${T.diplomas}</b><span>diplom utdelade</span></div>
+ </div>
+ <div class="grid">
+  <div class="card full"><h2>Guider: var folk hoppar av</h2><p class="sub">Andel som startade en guide men aldrig gjorde klart den. Hög andel kan betyda att guiden, eller funktionen i kassan, är svår att förstå.</p>
+   <div class="tabs" id="gt">${Object.entries(APPS).map(([a,l])=>`<button data-a="${a}" aria-pressed="${a===gApp}">${l}</button>`).join('')}</div><div class="scroll" id="gtab"></div></div>
+  <div class="card full"><h2>Provfrågor: flest fel</h2><p class="sub">Frågor sorterade efter andel fel svar (minst 3 svar). Det visar vad personalen har svårast att komma ihåg.</p>
+   <div class="tabs" id="qt">${Object.entries(APPS).map(([a,l])=>`<button data-a="${a}" aria-pressed="${a===qApp}">${l}</button>`).join('')}</div><div class="scroll" id="qtab"></div></div>
+  <div class="card"><h2>Mest använda guider</h2><p class="sub">Antal personer som har startat guiden.</p><div id="top"></div></div>
+  <div class="card"><h2>Guidespråk</h2><p class="sub">Vilket språk guiderna visas på.</p><table>${langs.map(([l,n])=>`<tr><td>${e(l)}</td><td style="width:60%">${bar(n/(langs[0]?.[1]||1),'var(--blue)')}</td><td class="n">${n}</td></tr>`).join('')||'<tr><td class="muted">Inga data än</td></tr>'}</table></div>
+ </div>`;
+ $('#re').onclick=load;$('#out').onclick=()=>{try{localStorage.removeItem(LS)}catch(x){}key='';login()};
+ $('#gt').onclick=ev=>{const b=ev.target.closest('[data-a]');if(b){gApp=b.dataset.a;render()}};
+ $('#qt').onclick=ev=>{const b=ev.target.closest('[data-a]');if(b){qApp=b.dataset.a;render()}};
+ const G=Object.entries(D.guides||{}).filter(([id])=>META[id]);
+ const rows=G.filter(([id])=>META[id].a===gApp).map(([id,g])=>({id,...g,drop:g.people?1-Math.min(g.peopleDone,g.people)/g.people:0})).sort((a,b)=>b.drop-a.drop||b.people-a.people);
+ $('#gtab').innerHTML=rows.length?`<table><tr><th>Guide</th><th class="n">Startat</th><th class="n">Klarat</th><th>Avhopp</th><th class="n"></th><th class="n">Övningar</th></tr>${rows.map(r=>`<tr><td>${e(META[r.id].t)} ${META[r.id].c?'<span class="pill">grundkurs</span>':''}</td><td class="n">${r.people}</td><td class="n">${r.peopleDone}</td><td style="width:22%">${bar(r.drop,r.drop>.5?'var(--bad)':r.drop>.25?'var(--warn)':'var(--ok)')}</td><td class="n">${pct(r.drop)}</td><td class="n">${r.practice||0}</td></tr>`).join('')}</table>`:'<p class="muted">Inga data än.</p>';
+ const Q=Object.entries((D.quiz||{})[qApp]||{}).map(([h,[r,w]])=>({h,r,w,n:r+w,rate:(r+w)?w/(r+w):0,m:QMAP[qApp+':'+h]})).filter(x=>x.m&&x.n>=3).sort((a,b)=>b.rate-a.rate);
+ $('#qtab').innerHTML=Q.length?`<table><tr><th>Fråga</th><th>Rätt svar</th><th class="n">Svar</th><th>Fel</th><th class="n"></th></tr>${Q.map(x=>`<tr><td>${e(x.m.q)}</td><td class="muted">${e(x.m.right)}</td><td class="n">${x.n}</td><td style="width:18%">${bar(x.rate,x.rate>.5?'var(--bad)':x.rate>.25?'var(--warn)':'var(--ok)')}</td><td class="n">${pct(x.rate)}</td></tr>`).join('')}</table>`:'<p class="muted">För få svar än.</p>';
+ const top=G.map(([id,g])=>({id,...g})).sort((a,b)=>b.people-a.people).slice(0,12);const mx=top[0]?.people||1;
+ $('#top').innerHTML=top.length?`<table>${top.map(r=>`<tr><td>${e(META[r.id].t)} <span class="pill">${APPS[META[r.id].a]}</span></td><td style="width:35%">${bar(r.people/mx,'var(--blue)')}</td><td class="n">${r.people}</td></tr>`).join('')}</table>`:'<p class="muted">Inga data än.</p>'}
+load();
+})();
+</script>
+</body>
+</html>

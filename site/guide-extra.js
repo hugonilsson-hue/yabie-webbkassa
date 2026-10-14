@@ -99,10 +99,10 @@ function quiz(app){app=app||APP();const src=Q[app]||[];const total=src.length,ne
     <div class="qzcard"><h3>${esc2(GT(q))}</h3>${order.map(([o,i],n)=>`<button class="qopt" data-qi="${i}" style="animation-delay:${120+n*80}ms">${esc2(GT(o))}</button>`).join('')}
     <div class="qzfb" aria-live="polite"></div><div class="qzfoot"></div></div>`);
    b.onclick=e=>{if(e.target.closest('[data-qx]')){tourEl.innerHTML='';return}
-    const o=e.target.closest('[data-qi]');if(o&&!busy){busy=true;const right=o.dataset.qi==='0';
+    const o=e.target.closest('[data-qi]');if(o&&!busy){busy=true;const right=o.dataset.qi==='0';window.statQuiz&&statQuiz(app,q,right);
      b.querySelectorAll('[data-qi]').forEach(x=>{x.disabled=true;if(x.dataset.qi==='0'){x.classList.add('ok');x.insertAdjacentHTML('beforeend','<span class="mk">✓</span>')}else if(x===o){x.classList.add('bad');x.insertAdjacentHTML('beforeend','<span class="mk">✕</span>')}else x.classList.add('dim')});
      const bar=b.querySelector('.qzbar i');if(bar)bar.style.width=Math.round((k+1)/total*100)+'%';
-     if(right){score++;streak++;const sc=b.querySelector('[data-sc]');sc.textContent='⭐ '+score;sc.classList.add('bump');
+     if(right){score++;streak++;if(streak>(TS.bestStreak||0)){TS.bestStreak=streak;tsave()}const sc=b.querySelector('[data-sc]');sc.textContent='⭐ '+score;sc.classList.add('bump');
       if(streak>=2){let st=b.querySelector('[data-st]');if(!st){b.querySelector('[data-sc]').insertAdjacentHTML('beforebegin',`<span class="qzchip fire" data-st></span>`);st=b.querySelector('[data-st]')}st.textContent='🔥 '+GU('u.quizStreak',streak);st.classList.remove('bump');void st.offsetWidth;st.classList.add('bump')}
       b.querySelector('.qzfb').innerHTML=`<b style="color:var(--pg-ok)">${esc2(GU('u.quizRight'))}</b>`;setTimeout(next,calm()?500:950)}
      else{streak=0;const st=b.querySelector('[data-st]');if(st)st.remove();
@@ -111,7 +111,7 @@ function quiz(app){app=app||APP();const src=Q[app]||[];const total=src.length,ne
      return}
     if(e.target.closest('[data-qn]'))next()}};
   const next=()=>{const c=box()&&box().querySelector('.qzcard');if(!c)return;c.classList.add('out');setTimeout(()=>{k++;k<total?ask():result()},calm()?0:230)};
-  const result=()=>{const ok=score>=need;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||prev.t<total||score>=prev.s)TS.quiz[app]={s:score,t:total,at:new Date().toISOString().slice(0,10)};tsave();sync();
+  const result=()=>{const ok=score>=need;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||prev.t<total||score>=prev.s)TS.quiz[app]={s:score,t:total,at:new Date().toISOString().slice(0,10)};tsave();sync();setTimeout(()=>window.badgeCheck&&badgeCheck(),2600);
    const R=64,C=2*Math.PI*R,col=ok?'#22c55e':'#e5484d';
    const b=shell(`<div class="qzres"><div class="qzring"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="${R}"/><circle class="fg" cx="75" cy="75" r="${R}" stroke="${col}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg><div class="num"><span data-cnt>0</span></div></div>
     <h3>${ok?GU('u.quizPass',score,total):GU('u.quizFail',score,total,need)}</h3>
