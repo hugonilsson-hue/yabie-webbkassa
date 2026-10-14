@@ -31,7 +31,11 @@ const TOURS=[
   {el:'pair-btn',t:'Skriv in koden och tryck Pair',d:'Tryck på Pair.<ol class="path"><li><span class="chip">Pair</span></li></ol>',on:'terminal:pair',ph:'I kassan'},
   {t:'Klart!',d:'När terminalen visar Yabie är den ihopkopplad med kassan. Nu kan du ta betalt.<div class="tipbox"><strong>Har koden gått ut?</strong><span>Koden gäller i 10 minuter. Öppna Parningsläge på terminalen igen så får du en ny kod.</span></div><div class="tipbox"><strong>Fortfarande strul?</strong><span>Hör av dig till <a href="https://support.yabie.com" target="_blank" rel="noopener">Yabie Support</a> så löser vi det tillsammans.</span></div>',next:1,ph:'I kassan'}]},
  {ch:'Hårdvara',id:'hw-skrivare',title:'Kvittoskrivare',steps:[
-  {t:'Anslut skrivaren',d:'Starta skrivaren och anslut kabeln till porten märkt <b>iPad</b>, eller LAN-kabel till routern.',next:1},
+  {t:'Ta av locket',d:'Vänd skrivaren upp och ner och lyft av locket på undersidan. Där sitter alla portar.',next:1,vid:'media/skrivare-1.mp4'},
+  {t:'Koppla in strömmen',d:'Sätt strömkabelns runda kontakt i porten <b>DC 24V</b> längst till höger. Lägg kabeln i spåret så att den kommer ut bakåt.',next:1,vid:'media/skrivare-2.mp4'},
+  {t:'Koppla in iPad-kabeln',d:'Sätt USB-kabeln i porten märkt <b>iPad</b> och lägg den i spåret bredvid strömkabeln. Använder ni nätverk i stället: sätt en LAN-kabel i porten <b>LAN</b> och koppla den till routern.',next:1,vid:'media/skrivare-3.mp4'},
+  {t:'Sätt tillbaka locket',d:'Tryck fast locket, vänd skrivaren rätt och sätt strömsladden i ett eluttag. Den blå lampan på framsidan lyser när skrivaren är på.',next:1,vid:'media/skrivare-4.mp4'},
+  {t:'Koppla till iPaden',d:'Sätt USB-kabelns andra ände i iPaden. Skrivaren laddar också iPaden när den är på.',next:1,vid:'media/skrivare-5.mp4'},
   {el:'mystore',d:'Öppna <b>My Store</b>.',on:'open:ms'},
   {el:'row-printers',d:'Under <b>Hardware</b>: tryck på <b>Printers</b>.',on:'open:printers'},
   {el:'printer-row',d:'Status <b>Connected</b> betyder att kassan hittar skrivaren. Tryck på den.',on:'open:printer'},
