@@ -1,0 +1,8 @@
+{
+  "name": "yabie-webbkassa",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

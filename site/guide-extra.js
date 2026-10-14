@@ -79,9 +79,9 @@ function certPng(name,course,s,t,date){const c=document.createElement('canvas');
 let U=null,DB=null,UID=null;
 
 const ready=(async()=>{if(!window.claude||!claude.use)return;try{U=await claude.use('user');DB=await claude.use('db');UID=U?await U.id():null}catch(e){}})();
-const meName=async()=>{await ready;try{return U?(await U.me()).name:''}catch(e){return ''}};
+const meName=async()=>{await ready;let n='';try{n=U?(await U.me()).name:''}catch(e){}return n||(window.groupMe&&window.groupMe())||''};
 let lastSync='';
-async function sync(){await ready;if(!DB||!UID)return;const done=Object.keys(TS.done||{}).filter(k=>TS.done[k]);const payload={done,quiz:TS.quiz||{}};const j=JSON.stringify(payload);if(j===lastSync)return;lastSync=j;
+async function sync(){if(window.groupSync)window.groupSync();await ready;if(!DB||!UID)return;const done=Object.keys(TS.done||{}).filter(k=>TS.done[k]);const payload={done,quiz:TS.quiz||{}};const j=JSON.stringify(payload);if(j===lastSync)return;lastSync=j;
  try{await DB.doc('progress/'+UID).set({...payload,at:new Date().toISOString()})}catch(e){lastSync=''}}
 ready.then(()=>sync());
 const _fin=finishTour;finishTour=function(){const t=T&&T.t;_fin.apply(this,arguments);sync();
@@ -102,13 +102,13 @@ window.teamView=team;
 /* ── Dela en enskild guide: länk + guidekod ── */
 const BASE='https://claude.ai/artifact/TBAp7BaFuo9eujwSEa9WXY';
 const WEB=/claudeusercontent|claude\.ai|^$/.test(location.hostname)?(window.GWEB||''):location.origin+location.pathname.replace(/index\.html$/,'');
-const linkFor=id=>WEB?WEB.replace(/\/?$/,'/')+'?guide='+id:((window.GLINKS||{})[id]||BASE);
+const linkFor=id=>WEB?(window.groupLink||(u=>u))(WEB.replace(/\/?$/,'/')+'?guide='+id):((window.GLINKS||{})[id]||BASE);
 const ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const codeOf=id=>{let h=2166136261;for(const c of id){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}let s='';for(let i=0;i<4;i++){s+=ALPH[h%32];h=Math.floor(h/32)}return s};
 const byCode=raw=>{const c=String(raw||'').trim();const k=c.toUpperCase().replace(/[^A-Z0-9]/g,'');
  return TOURS.find(t=>!t.hide&&codeOf(t.id)===k)||TOURS.find(t=>t.id===c.toLowerCase())};
 window.guideCode=codeOf;window.guideByCode=byCode;
-const go=t=>{TS.appAsked=1;tsave();document.getElementById('side').classList.remove('open');tourEl.innerHTML='';setTimeout(()=>startTour(t.id),50)};
+const go=t=>{TS.appAsked=1;if(!TS.hw||TS.hwv!==2){try{TS.hw=HW.map(h=>h.id);TS.hwv=2;tsave()}catch(e){}}tsave();document.getElementById('side').classList.remove('open');tourEl.innerHTML='';setTimeout(()=>startTour(t.id),50)};
 const codeForm=()=>`<form class="gcode" data-gcode><label>${GU('u.codeQ')}</label><div><input aria-label="${esc2(GU('u.codeLbl'))}" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7Q2" dir="ltr"><button class="pbtn pri" type="submit">${GU('u.codeGo')}</button></div><small role="status" aria-live="polite"></small></form>`;
 document.addEventListener('submit',e=>{const f=e.target.closest&&e.target.closest('[data-gcode]');if(!f)return;e.preventDefault();e.stopPropagation();
  const i=f.querySelector('input'),t=byCode(i.value);if(t)go(t);else{f.querySelector('small').textContent=GU('u.codeBad');i.select()}},true);
@@ -120,7 +120,8 @@ function showLink(id){const t=TOURS.find(x=>x.id===id);const url=linkFor(id);
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn pri" data-cp>${GU('u.linkCopy')}</button></div></div></div>`;
  const i=document.getElementById('glinkin');i.focus();i.select();
  tourEl.querySelector('.win>div').onclick=async e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-cp]')){i.select();let ok=false;try{await navigator.clipboard.writeText(url);ok=true}catch(x){try{ok=document.execCommand('copy')}catch(y){}}e.target.textContent=ok?GU('u.linkCopied'):GU('u.linkCopy')}}}
-const openFromUrl=()=>{if(window.START_GUIDE){if(!TS.hw||TS.hwv!==2){try{TS.hw=HW.map(h=>h.id);TS.hwv=2;tsave()}catch(e){}}const t=TOURS.find(x=>x.id===window.START_GUIDE);if(t)setTimeout(()=>go(t),300);return}let m=(location.hash+'&'+location.search).match(/guide=([A-Za-z0-9-]+)/);if(!m)return;const t=byCode(m[1]);if(t)setTimeout(()=>go(t),400)};
+const openFromUrl=()=>{if(window.START_GUIDE){const t=TOURS.find(x=>x.id===window.START_GUIDE);if(t)setTimeout(()=>go(t),300);return}let m=(location.hash+'&'+location.search).match(/guide=([A-Za-z0-9-]+)/);if(!m)return;const t=byCode(m[1]);if(!t)return;if(window.GROUP_WAIT){window.GROUP_PENDING=t;return}setTimeout(()=>go(t),400)};
+window.guideGo=go;
 window.addEventListener('hashchange',openFromUrl);setTimeout(openFromUrl,300);
 /* Kodrutan i välkomstdialogen (första besöket) */
 
