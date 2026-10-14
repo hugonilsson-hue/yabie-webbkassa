@@ -14,59 +14,132 @@ const st=document.createElement('style');st.textContent=`
 .win.teamw>div{max-width:720px;width:calc(100vw - 32px);max-height:calc(100vh - 32px);overflow:auto;text-align:left}
 @media print{body *{visibility:hidden}.cert,.cert *{visibility:visible}.cert{position:fixed;inset:40px;border-width:4px}}`;document.head.appendChild(st);
 
-/* ── Quizfrågor (svenska källtexter, översätts via GT) ── */
-const Q={
- pos:[['Var hittar du orderhistoriken för att göra en retur eller en kvittokopia?',['My Store → Order History','Functions → Discount','Parked']],
-  ['Vad behöver du ange vid dagens första kontantköp?','Växelkassan, alltså hur mycket som ligger i kassalådan|Kundens personnummer|En rabattkod'.split('|')],
-  ['Hur ofta ska du ta en Z-rapport?','Varje dag du har sålt något|En gång i månaden|Bara när Skatteverket frågar'.split('|')],
-  ['Två gäster vill betala olika belopp. Vad väljer du?','Functions → Split by amount|Park|Open return'.split('|')],
-  ['Vad är skillnaden mellan X-rapporten och Z-rapporten?','X-rapporten stänger inte dagen, Z-rapporten gör det|De är samma rapport|Z-rapporten visar bara kortbetalningar'.split('|')]],
- bs:[['Vad styr momsen på en produkt i Backstage?','Produktgruppen|Färgen på knappen|Betalsättet'.split('|')],
-  ['Vad gör en automatisk kampanj?','Den dras av i kassan utan att kassören gör något|Den måste aktiveras med en knapp|Den gäller bara i webbshoppen'.split('|')],
-  ['Var rättar du ett pass som någon glömde att stämpla?','Personalliggare → Lägg till skift|Kampanjer|Licenser'.split('|')],
-  ['Kassan hämtar inte en ändring från Backstage direkt. Vad gör du?','Synkroniserar produktkatalogen i kassan|Raderar produkten och skapar den igen|Startar om routern'.split('|')],
-  ['Var kopplar du ihop Yabie med Fortnox?','Integrationer|Kök|Lojalitet'.split('|')]],
- mob:[['Var ligger varukorgen i mobilkassan?','I en egen flik längst ner|Under My Store|Den finns bara på iPaden'.split('|')],
-  ['Kan en order som parkerats på ett bord i mobilen tas över på iPaden?','Ja, bordskartan är gemensam för alla kassor|Nej, varje enhet har egna bord|Bara efter Z-rapporten'.split('|')],
-  ['Hur tar du betalt med kort på en Samsung A35?','I en fristående terminal, sedan registrerar du betalningen i kassan|Kunden blippar kortet mot mobilen|Det går inte'.split('|')],
-  ['Hur gör du en retur i mobilkassan?','Från den tidigare ordern i orderhistoriken|Med en negativ rabatt|Genom att radera ordern'.split('|')],
-  ['Hur stämplar du ut efter ett pass?','Anger samma PIN igen och trycker End shift|Stänger appen|Tar en Z-rapport'.split('|')]]};
-window.QUIZ_SRC=Q;
-const PASS=4;
+/* ── Diplomprov: 25 frågor, animerat ── */
+const Q=window.QUIZ_SRC||{pos:[],bs:[],mob:[]};
+const PASS_PCT=0.8,PASS=20;
+const passOf=n=>Math.ceil(n*PASS_PCT);
 const courseName=a=>a==='bs'?GU('u.courseBs'):a==='mob'?GU('u.courseMob'):GU('u.coursePos');
 const shuffle=a=>{const r=a.map((x,i)=>[x,i]);for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r};
+const calm=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+{const s=document.createElement('style');s.textContent=`
+.win.quiz.qz>div{max-width:540px;width:calc(100vw - 32px);overflow:hidden;position:relative}
+.qz{--qzx:44px}.qz[dir=rtl]{--qzx:-44px}
+.qzhead{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--pg-muted);margin-bottom:8px}
+.qzhead .sp{flex:1}
+.qzchip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--pg-ok) 14%,transparent);color:var(--pg-ok);font-weight:700;font-size:12px}
+.qzchip.fire{background:color-mix(in srgb,#ff7a1a 16%,transparent);color:#e8650c}
+.qzchip.bump{animation:qzBump .45s cubic-bezier(.3,1.6,.5,1)}
+.qzbar{height:8px;border-radius:99px;background:var(--pg-line);overflow:hidden;margin-bottom:16px}
+.qzbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#1677ff,#22c55e);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.qzcard{animation:qzIn .45s cubic-bezier(.2,.8,.2,1) both}.qzcard.out{animation:qzOut .25s ease-in both}
+.qzcard h3{font-size:18px;line-height:1.35;margin:0 0 12px}
+.qz .qopt{position:relative;display:block;width:100%;text-align:start;border:1.5px solid var(--pg-line);background:var(--pg-panel);border-radius:12px;padding:12px 40px 12px 14px;margin:8px 0;font-size:14.5px;color:inherit;cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s;animation:qzUp .4s cubic-bezier(.2,.8,.2,1) both}
+.qz[dir=rtl] .qopt{padding:12px 14px 12px 40px}
+.qz .qopt:hover:not([disabled]){transform:translateY(-2px);border-color:#1677ff;box-shadow:0 6px 18px -10px #1677ff}
+.qz .qopt[disabled]{cursor:default}
+.qz .qopt.ok{border-color:var(--pg-ok);background:color-mix(in srgb,var(--pg-ok) 14%,var(--pg-panel));animation:qzPulse .55s ease both}
+.qz .qopt.bad{border-color:#e5484d;background:color-mix(in srgb,#e5484d 12%,var(--pg-panel));animation:qzShake .45s ease both}
+.qz .qopt.dim{opacity:.45}
+.qz .qopt .mk{position:absolute;inset-inline-end:12px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:800;animation:qzPop .4s cubic-bezier(.3,1.7,.5,1) both}
+.qz .qopt.ok .mk{background:var(--pg-ok)}.qz .qopt.bad .mk{background:#e5484d}
+.qzfb{min-height:22px;font-size:13.5px;margin-top:6px}.qzfb>*{animation:qzUp .3s ease both}
+.qzfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.qzfoot [data-qn]{animation:qzUp .3s ease both}
+.qzintro{text-align:center;padding:6px 0}
+.qzmedal{font-size:64px;line-height:1;display:inline-block;animation:qzFloat 2.6s ease-in-out infinite;filter:drop-shadow(0 10px 14px rgba(0,0,0,.18))}
+.qzintro h3{font-size:21px;margin:14px 0 6px}.qzintro p{font-size:14px;margin:0 auto 16px;max-width:400px}
+.qzstats{display:flex;justify-content:center;gap:10px;margin:0 0 18px}
+.qzstats div{border:1px solid var(--pg-line);border-radius:12px;padding:8px 14px;min-width:84px}.qzstats b{display:block;font-size:20px}.qzstats span{font-size:11.5px;color:var(--pg-muted)}
+.qzgo{font-size:15px!important;padding:11px 26px!important;animation:qzGlow 2s ease-in-out infinite}
+.qzres{text-align:center}
+.qzring{position:relative;width:150px;height:150px;margin:6px auto 10px}
+.qzring svg{transform:rotate(-90deg)}.qzring circle{fill:none;stroke-width:12}.qzring .bg{stroke:var(--pg-line)}
+.qzring .fg{stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.2,.8,.2,1)}
+.qzring .num{position:absolute;inset:0;display:grid;place-items:center;font-size:34px;font-weight:800}
+.qzring .num small{display:block;font-size:12px;font-weight:600;color:var(--pg-muted);margin-top:-22px}
+.qzres h3{animation:qzUp .5s .9s ease both}.qzres .after{animation:qzUp .5s 1.1s ease both}
+.qz .cert{position:relative;overflow:hidden;animation:qzFlip .9s cubic-bezier(.2,.8,.2,1) both;transform-origin:50% 0}
+.qz .cert::after{content:'';position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);animation:qzShine 1.6s .9s ease both;pointer-events:none}
+.qzseal{position:absolute;top:14px;inset-inline-end:14px;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe58a,#f4b400 60%,#c98a00);color:#5a3d00;display:grid;place-items:center;font:800 10px/1.1 Inter,sans-serif;letter-spacing:.06em;text-align:center;box-shadow:0 0 0 4px #fff,0 0 0 6px #f4b400,0 8px 16px -6px rgba(0,0,0,.35);animation:qzStamp .6s 1s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes qzIn{from{opacity:0;transform:translateX(var(--qzx))}to{opacity:1;transform:none}}
+@keyframes qzOut{to{opacity:0;transform:translateX(calc(var(--qzx) * -1))}}
+@keyframes qzUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes qzPulse{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes qzShake{0%,100%{transform:none}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@keyframes qzPop{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes qzBump{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes qzFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+@keyframes qzGlow{0%,100%{box-shadow:0 0 0 0 rgba(22,119,255,.45)}50%{box-shadow:0 0 0 10px rgba(22,119,255,0)}}
+@keyframes qzFlip{from{opacity:0;transform:perspective(900px) rotateX(-70deg) translateY(-20px)}to{opacity:1;transform:none}}
+@keyframes qzShine{to{left:130%}}
+@keyframes qzStamp{from{opacity:0;transform:scale(2.4) rotate(-30deg)}to{opacity:1;transform:scale(1) rotate(-12deg)}}
+@media (prefers-reduced-motion: reduce){.qz *,.qz *::after{animation:none!important;transition:none!important}}`;document.head.appendChild(s)}
 
-function quiz(app){app=app||APP();const qs=Q[app];let k=0,score=0;
+/* Konfetti */
+function confetti(n=160){if(calm())return;const c=document.createElement('canvas');c.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:2147483000';document.body.appendChild(c);
+ const d=devicePixelRatio||1,W=innerWidth,H=innerHeight;c.width=W*d;c.height=H*d;const x=c.getContext('2d');x.scale(d,d);
+ const col=['#1677ff','#22c55e','#f4b400','#e5484d','#a855f7','#06b6d4'];
+ const P=Array.from({length:n},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-6,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.4,w:6+Math.random()*6,h:8+Math.random()*8})).map((p,i)=>(p.c=col[i%col.length],p));
+ const t0=performance.now();(function f(t){const k=(t-t0)/1000;x.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;x.save();x.globalAlpha=Math.max(0,1-k/3.2);x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore()});
+  if(k<3.3)requestAnimationFrame(f);else c.remove()})(t0)}
+window.confetti=confetti;
+
+function quiz(app){app=app||APP();const src=Q[app]||[];const total=src.length,need=passOf(total);
  const box=()=>tourEl.querySelector('.win>div');
- const ask=()=>{const [q,opts]=qs[k];const order=shuffle(opts);
-  tourEl.innerHTML=`<div class="win quiz" ${GDIR()}><div><div class="qmeta">${esc2(GU('u.quizT',courseName(app)))} · ${GU('u.quizQ',k+1,qs.length)}</div><h3 style="font-size:17px">${esc2(GT(q))}</h3>
-   ${order.map(([o,i])=>`<button class="qopt" data-qi="${i}">${esc2(GT(o))}</button>`).join('')}<div class="qfb"></div>
-   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn pri" data-qn disabled style="opacity:.4">${k<qs.length-1?GU('u.quizNext'):GU('u.quizDone')}</button></div></div></div>`;
-  const b=box();b.onclick=e=>{if(e.target.closest('[data-qx]')){tourEl.innerHTML='';return}
-   const o=e.target.closest('[data-qi]');if(o&&!b.dataset.ans){b.dataset.ans=1;const right=o.dataset.qi==='0';if(right)score++;
-    b.querySelectorAll('[data-qi]').forEach(x=>{if(x.dataset.qi==='0')x.classList.add('ok');else if(x===o)x.classList.add('bad')});
-    b.querySelector('.qfb').innerHTML=right?`<b style="color:var(--pg-ok)">${GU('u.quizRight')}</b>`:esc2(GU('u.quizWrong',GT(opts[0])));const n=b.querySelector('[data-qn]');n.disabled=false;n.style.opacity=1;return}
-   if(e.target.closest('[data-qn]')&&b.dataset.ans){k++;k<qs.length?ask():result()}}};
- const result=()=>{const ok=score>=PASS;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||score>=prev.s)TS.quiz[app]={s:score,t:qs.length,at:new Date().toISOString().slice(0,10)};tsave();sync();
-  tourEl.innerHTML=`<div class="win quiz" ${GDIR()}><div style="text-align:center"><div class="ic" style="${ok?'':'background:#e5484d'}">${ok?'✓':'!'}</div><h3>${ok?GU('u.quizPass',score,qs.length):GU('u.quizFail',score,qs.length,PASS)}</h3>
-   ${ok?`<label style="display:block;text-align:left;font-size:12px;color:var(--pg-muted);margin-top:10px">${GU('u.certName')}<input id="certname" style="display:block;width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--pg-line);border-radius:8px;font:inherit;color:inherit;background:transparent"></label>`:''}
-   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="pbtn" data-qx>${GU('u.close')}</button>${ok?`<button class="pbtn pri" data-cert>${GU('u.certMake')}</button>`:`<button class="pbtn pri" data-retry>${GU('u.quizRetry')}</button>`}</div></div></div>`;
-  if(ok)meName().then(n=>{const i=document.getElementById('certname');if(i&&!i.value)i.value=n||TS.certName||''});
-  const b=box();b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-retry]'))quiz(app);
-   if(e.target.closest('[data-cert]')){const n=(document.getElementById('certname').value||'').trim();if(!n){document.getElementById('certname').focus();return}TS.certName=n;tsave();cert(app,n,score,qs.length)}}};
- ask()}
+ const shell=(inner,cls='')=>{tourEl.innerHTML=`<div class="win quiz qz ${cls}" ${GDIR()}><div>${inner}</div></div>`;return box()};
+ const best=(TS.quiz||{})[app];
+ const b=shell(`<div class="qzintro"><div class="qzmedal">🏅</div><h3>${esc2(GU('u.quizIntroT',courseName(app)))}</h3><p>${esc2(GU('u.quizIntroP',total,need))}</p>
+  <div class="qzstats"><div><b>${total}</b><span>${GU('u.quizQs')}</span></div><div><b>${need}</b><span>${GU('u.quizNeed')}</span></div>${best&&best.t>=total?`<div><b>${best.s}</b><span>${GU('u.quizBest')}</span></div>`:''}</div>
+  <div class="qzfoot" style="justify-content:center"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn pri qzgo" data-go>${GU('u.quizStart')}</button></div></div>`);
+ b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-go]'))run()};
+ function run(){const qs=shuffle(src).map(([x])=>x);let k=0,score=0,streak=0,busy=false;
+  const ask=()=>{const [q,opts]=qs[k];const order=shuffle(opts);busy=false;
+   const b=shell(`<div class="qzhead"><span>${esc2(GU('u.quizQ',k+1,total))}</span><span class="sp"></span>${streak>=2?`<span class="qzchip fire" data-st>🔥 ${esc2(GU('u.quizStreak',streak))}</span>`:''}<span class="qzchip" data-sc>⭐ ${score}</span><button class="pbtn" data-qx style="padding:3px 9px;font-size:12px" aria-label="${esc2(GU('u.close'))}">✕</button></div>
+    <div class="qzbar"><i style="width:${Math.round((k)/total*100)}%"></i></div>
+    <div class="qzcard"><h3>${esc2(GT(q))}</h3>${order.map(([o,i],n)=>`<button class="qopt" data-qi="${i}" style="animation-delay:${120+n*80}ms">${esc2(GT(o))}</button>`).join('')}
+    <div class="qzfb" aria-live="polite"></div><div class="qzfoot"></div></div>`);
+   b.onclick=e=>{if(e.target.closest('[data-qx]')){tourEl.innerHTML='';return}
+    const o=e.target.closest('[data-qi]');if(o&&!busy){busy=true;const right=o.dataset.qi==='0';
+     b.querySelectorAll('[data-qi]').forEach(x=>{x.disabled=true;if(x.dataset.qi==='0'){x.classList.add('ok');x.insertAdjacentHTML('beforeend','<span class="mk">✓</span>')}else if(x===o){x.classList.add('bad');x.insertAdjacentHTML('beforeend','<span class="mk">✕</span>')}else x.classList.add('dim')});
+     const bar=b.querySelector('.qzbar i');if(bar)bar.style.width=Math.round((k+1)/total*100)+'%';
+     if(right){score++;streak++;const sc=b.querySelector('[data-sc]');sc.textContent='⭐ '+score;sc.classList.add('bump');
+      if(streak>=2){let st=b.querySelector('[data-st]');if(!st){b.querySelector('[data-sc]').insertAdjacentHTML('beforebegin',`<span class="qzchip fire" data-st></span>`);st=b.querySelector('[data-st]')}st.textContent='🔥 '+GU('u.quizStreak',streak);st.classList.remove('bump');void st.offsetWidth;st.classList.add('bump')}
+      b.querySelector('.qzfb').innerHTML=`<b style="color:var(--pg-ok)">${esc2(GU('u.quizRight'))}</b>`;setTimeout(next,calm()?500:950)}
+     else{streak=0;const st=b.querySelector('[data-st]');if(st)st.remove();
+      b.querySelector('.qzfb').innerHTML=`<span>${esc2(GU('u.quizWrong',GT(opts[0])))}</span>`;
+      b.querySelector('.qzfoot').innerHTML=`<button class="pbtn pri" data-qn>${k<total-1?GU('u.quizNext'):GU('u.quizDone')}</button>`;b.querySelector('[data-qn]').focus()}
+     return}
+    if(e.target.closest('[data-qn]'))next()}};
+  const next=()=>{const c=box()&&box().querySelector('.qzcard');if(!c)return;c.classList.add('out');setTimeout(()=>{k++;k<total?ask():result()},calm()?0:230)};
+  const result=()=>{const ok=score>=need;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||prev.t<total||score>=prev.s)TS.quiz[app]={s:score,t:total,at:new Date().toISOString().slice(0,10)};tsave();sync();
+   const R=64,C=2*Math.PI*R,col=ok?'#22c55e':'#e5484d';
+   const b=shell(`<div class="qzres"><div class="qzring"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="${R}"/><circle class="fg" cx="75" cy="75" r="${R}" stroke="${col}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg><div class="num"><span data-cnt>0</span></div></div>
+    <h3>${ok?GU('u.quizPass',score,total):GU('u.quizFail',score,total,need)}</h3>
+    <div class="after">${ok?`<label style="display:block;text-align:start;font-size:12px;color:var(--pg-muted);margin-top:10px">${GU('u.certName')}<input id="certname" style="display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--pg-line);border-radius:8px;font:inherit;color:inherit;background:transparent"></label>`:''}
+    <div class="qzfoot" style="justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="pbtn" data-qx>${GU('u.close')}</button>${ok?`<button class="pbtn pri qzgo" data-cert>${GU('u.certMake')}</button>`:`<button class="pbtn pri" data-retry>${GU('u.quizRetry')}</button>`}</div></div></div>`);
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{const fg=b.querySelector('.fg');if(fg)fg.style.strokeDashoffset=C*(1-score/total)}));
+   const cnt=b.querySelector('[data-cnt]');if(calm())cnt.textContent=score+'/'+total;else{const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1300);cnt.textContent=Math.round(score*(1-Math.pow(1-p,3)))+'/'+total;if(p<1)requestAnimationFrame(f)})(t0)}
+   if(ok)setTimeout(()=>confetti(),900);
+   if(ok)meName().then(n=>{const i=document.getElementById('certname');if(i&&!i.value)i.value=n||TS.certName||''});
+   b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-retry]'))quiz(app);
+    if(e.target.closest('[data-cert]')){const n=(document.getElementById('certname').value||'').trim();if(!n){document.getElementById('certname').focus();return}TS.certName=n;tsave();cert(app,n,score,total)}}};
+  ask()}}
 window.quiz=quiz;
 
 function cert(app,name,s,t){const date=new Date().toISOString().slice(0,10);
- tourEl.innerHTML=`<div class="win quiz" ${GDIR()}><div><div class="cert" id="certcard"><div class="lg">YABIE WEBBKASSA</div><h4>${esc2(GU('u.certTitle'))}</h4><div class="nm">${esc2(name)}</div><p>${GU('u.certBody',esc2(courseName(app)),s,t)}</p><p>${esc2(GU('u.certDate'))}: ${date}</p></div>
-  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn" data-print>${GU('u.certPrint')}</button><button class="pbtn pri" data-png>${GU('u.certSave')}</button></div></div></div>`;
+ tourEl.innerHTML=`<div class="win quiz qz" ${GDIR()}><div><div class="cert" id="certcard"><div class="qzseal">${esc2(GU('u.certSeal'))}</div><div class="lg">YABIE WEBBKASSA</div><h4>${esc2(GU('u.certTitle'))}</h4><div class="nm">${esc2(name)}</div><p>${GU('u.certBody',esc2(courseName(app)),s,t)}</p><p>${esc2(GU('u.certDate'))}: ${date}</p></div>
+  <div class="qzfoot" style="justify-content:center;flex-wrap:wrap"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn" data-print>${GU('u.certPrint')}</button><button class="pbtn pri" data-png>${GU('u.certSave')}</button></div></div></div>`;
+ setTimeout(()=>confetti(90),1000);
  tourEl.querySelector('.win>div').onclick=async e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-print]'))try{window.print()}catch(x){}
-  if(e.target.closest('[data-png]')){const blob=await certPng(name,courseName(app),s,t,date);const fn='intyg-yabie-'+app+'.png';
+  if(e.target.closest('[data-png]')){const blob=await certPng(name,courseName(app),s,t,date);const fn='diplom-yabie-'+app+'.png';
    const dl=window.claude&&claude.use?await claude.use('downloads').catch(()=>null):null;
    if(dl){try{await dl.save({filename:fn,data:blob});return}catch(x){if(x&&x.code==='declined')return}}
    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;document.body.appendChild(a);a.click();a.remove()}}}
 function certPng(name,course,s,t,date){const c=document.createElement('canvas');c.width=1400;c.height=990;const x=c.getContext('2d');
  x.fillStyle='#fff';x.fillRect(0,0,1400,990);x.strokeStyle='#1f9d55';x.lineWidth=14;x.strokeRect(40,40,1320,910);x.lineWidth=2;x.strokeRect(70,70,1260,850);
+ const g=x.createRadialGradient(1150,215,10,1170,235,95);g.addColorStop(0,'#ffe58a');g.addColorStop(.6,'#f4b400');g.addColorStop(1,'#c98a00');
+ x.save();x.translate(1170,235);x.rotate(-.2);x.beginPath();x.arc(0,0,92,0,Math.PI*2);x.fillStyle=g;x.fill();x.lineWidth=6;x.strokeStyle='#f4b400';x.stroke();
+ x.fillStyle='#5a3d00';x.textAlign='center';x.font='800 22px Inter, Arial, sans-serif';const sl=GU('u.certSeal').split(' ');sl.forEach((w,i)=>x.fillText(w,0,8+(i-(sl.length-1)/2)*26));x.restore();
  x.textAlign='center';x.fillStyle='#1f9d55';x.font='800 30px Inter, Arial, sans-serif';x.fillText('YABIE WEBBKASSA',700,190);
  x.fillStyle='#14261d';x.font='800 84px Inter, Arial, sans-serif';x.fillText(GU('u.certTitle'),700,310);
  x.font='700 64px Inter, Arial, sans-serif';x.fillText(name,700,460);x.fillStyle='#cfe9da';x.fillRect(360,490,680,3);

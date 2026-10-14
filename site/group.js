@@ -79,7 +79,7 @@ async function dash(){const w=win(`<h3 style="font-size:17px">${GU('u.grpProgres
   rows.sort((a,b)=>String(b.at||'').localeCompare(String(a.at||'')));
   const apps=[['pos','iPad'],['bs','Backstage'],['mob',GU('u.appMob')]],X=extras();
   const allCore=m=>apps.every(([a])=>coreOf(a).every(t=>(m.done||[]).includes(t.id)));
-  const qz=qq=>apps.filter(([a])=>qq&&qq[a]).map(([a,l])=>`${l} ${qq[a].s}/${qq[a].t}${qq[a].s>=4?' ✓':''}`).join('<br>')||'–';
+  const qz=qq=>apps.filter(([a])=>qq&&qq[a]).map(([a,l])=>`${l} ${qq[a].s}/${qq[a].t}${qq[a].t>=25&&qq[a].s>=Math.ceil(qq[a].t*.8)?' 🏅':''}`).join('<br>')||'–';
   el.innerHTML=`<p style="font-size:12.5px;opacity:.8;margin:0 0 8px">${GU('u.grpSummary',rows.length,rows.filter(allCore).length)}</p><div class="grpscroll"><table class="team grpt"><tr><th>${GU('u.teamWho')}</th>${apps.map(([,l])=>`<th>${GU('u.grpCore',l)}</th>`).join('')}<th>${GU('u.grpOther')}</th><th>${GU('u.teamQuiz')}</th><th>${GU('u.teamLast')}</th><th></th></tr>
   ${rows.map(m=>{const d=m.done||[];return `<tr><td><bdi>${e2(m.name)}</bdi></td>${apps.map(([a])=>{const c=coreOf(a);return `<td class="gb">${bar(c.filter(t=>d.includes(t.id)).length,c.length)}</td>`}).join('')}<td class="gb">${bar(X.filter(t=>d.includes(t.id)).length,X.length)}</td><td style="font-size:11.5px">${qz(m.quiz)}</td><td>${ago(m.at)}</td><td><button class="pbtn" style="padding:3px 8px;font-size:11.5px" data-del="${e2(m.id)}">${GU('u.grpDel')}</button></td></tr>`}).join('')}</table></div>`};
  load()}
