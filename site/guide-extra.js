@@ -90,16 +90,17 @@ function quiz(app){app=app||APP();const src=Q[app]||[];const total=src.length,ne
  const best=(TS.quiz||{})[app];
  const b=shell(`<div class="qzintro"><div class="qzmedal">🏅</div><h3>${esc2(GU('u.quizIntroT',courseName(app)))}</h3><p>${esc2(GU('u.quizIntroP',total,need))}</p>
   <div class="qzstats"><div><b>${total}</b><span>${GU('u.quizQs')}</span></div><div><b>${need}</b><span>${GU('u.quizNeed')}</span></div>${best&&best.t>=total?`<div><b>${best.s}</b><span>${GU('u.quizBest')}</span></div>`:''}</div>
-  <div class="qzfoot" style="justify-content:center"><button class="pbtn" data-qx>${GU('u.close')}</button><button class="pbtn pri qzgo" data-go>${GU('u.quizStart')}</button></div></div>`);
- b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-go]'))run()};
- function run(){const qs=shuffle(src).map(([x])=>x);let k=0,score=0,streak=0,busy=false;
+  <div class="qzfoot" style="justify-content:center;flex-wrap:wrap"><button class="pbtn" data-qx>${GU('u.close')}</button>${best&&best.t>=total&&best.s>=need?`<button class="pbtn" data-dip>🏅 ${GU('u.certMake')}</button>`:''}<button class="pbtn pri qzgo" data-go>${GU('u.quizStart')}</button></div></div>`);
+ b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-go]'))run();
+  if(e.target.closest('[data-dip]')){tourEl.innerHTML='';diplomaShow({app,course:courseName(app),answers:null,score:best.s,total:best.t,need,name:TS.certName||(window.groupMe&&groupMe())||'',date:best.at,instant:true,onRetry:()=>quiz(app)})}};
+ function run(){const qs=shuffle(src).map(([x])=>x);let k=0,score=0,streak=0,busy=false;const ans=[];
   const ask=()=>{const [q,opts]=qs[k];const order=shuffle(opts);busy=false;
    const b=shell(`<div class="qzhead"><span>${esc2(GU('u.quizQ',k+1,total))}</span><span class="sp"></span>${streak>=2?`<span class="qzchip fire" data-st>🔥 ${esc2(GU('u.quizStreak',streak))}</span>`:''}<span class="qzchip" data-sc>⭐ ${score}</span><button class="pbtn" data-qx style="padding:3px 9px;font-size:12px" aria-label="${esc2(GU('u.close'))}">✕</button></div>
     <div class="qzbar"><i style="width:${Math.round((k)/total*100)}%"></i></div>
     <div class="qzcard"><h3>${esc2(GT(q))}</h3>${order.map(([o,i],n)=>`<button class="qopt" data-qi="${i}" style="animation-delay:${120+n*80}ms">${esc2(GT(o))}</button>`).join('')}
     <div class="qzfb" aria-live="polite"></div><div class="qzfoot"></div></div>`);
    b.onclick=e=>{if(e.target.closest('[data-qx]')){tourEl.innerHTML='';return}
-    const o=e.target.closest('[data-qi]');if(o&&!busy){busy=true;const right=o.dataset.qi==='0';window.statQuiz&&statQuiz(app,q,right);
+    const o=e.target.closest('[data-qi]');if(o&&!busy){busy=true;const right=o.dataset.qi==='0';ans.push(right);window.statQuiz&&statQuiz(app,q,right);
      b.querySelectorAll('[data-qi]').forEach(x=>{x.disabled=true;if(x.dataset.qi==='0'){x.classList.add('ok');x.insertAdjacentHTML('beforeend','<span class="mk">✓</span>')}else if(x===o){x.classList.add('bad');x.insertAdjacentHTML('beforeend','<span class="mk">✕</span>')}else x.classList.add('dim')});
      const bar=b.querySelector('.qzbar i');if(bar)bar.style.width=Math.round((k+1)/total*100)+'%';
      if(right){score++;streak++;if(streak>(TS.bestStreak||0)){TS.bestStreak=streak;tsave()}const sc=b.querySelector('[data-sc]');sc.textContent='⭐ '+score;sc.classList.add('bump');
@@ -111,18 +112,10 @@ function quiz(app){app=app||APP();const src=Q[app]||[];const total=src.length,ne
      return}
     if(e.target.closest('[data-qn]'))next()}};
   const next=()=>{const c=box()&&box().querySelector('.qzcard');if(!c)return;c.classList.add('out');setTimeout(()=>{k++;k<total?ask():result()},calm()?0:230)};
-  const result=()=>{const ok=score>=need;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||prev.t<total||score>=prev.s)TS.quiz[app]={s:score,t:total,at:new Date().toISOString().slice(0,10)};tsave();sync();setTimeout(()=>window.badgeCheck&&badgeCheck(),2600);
-   const R=64,C=2*Math.PI*R,col=ok?'#22c55e':'#e5484d';
-   const b=shell(`<div class="qzres"><div class="qzring"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="bg" cx="75" cy="75" r="${R}"/><circle class="fg" cx="75" cy="75" r="${R}" stroke="${col}" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg><div class="num"><span data-cnt>0</span></div></div>
-    <h3>${ok?GU('u.quizPass',score,total):GU('u.quizFail',score,total,need)}</h3>
-    <div class="after">${ok?`<label style="display:block;text-align:start;font-size:12px;color:var(--pg-muted);margin-top:10px">${GU('u.certName')}<input id="certname" style="display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--pg-line);border-radius:8px;font:inherit;color:inherit;background:transparent"></label>`:''}
-    <div class="qzfoot" style="justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="pbtn" data-qx>${GU('u.close')}</button>${ok?`<button class="pbtn pri qzgo" data-cert>${GU('u.certMake')}</button>`:`<button class="pbtn pri" data-retry>${GU('u.quizRetry')}</button>`}</div></div></div>`);
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{const fg=b.querySelector('.fg');if(fg)fg.style.strokeDashoffset=C*(1-score/total)}));
-   const cnt=b.querySelector('[data-cnt]');if(calm())cnt.textContent=score+'/'+total;else{const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1300);cnt.textContent=Math.round(score*(1-Math.pow(1-p,3)))+'/'+total;if(p<1)requestAnimationFrame(f)})(t0)}
-   if(ok)setTimeout(()=>confetti(),900);
-   if(ok)meName().then(n=>{const i=document.getElementById('certname');if(i&&!i.value)i.value=n||TS.certName||''});
-   b.onclick=e=>{if(e.target.closest('[data-qx]'))tourEl.innerHTML='';if(e.target.closest('[data-retry]'))quiz(app);
-    if(e.target.closest('[data-cert]')){const n=(document.getElementById('certname').value||'').trim();if(!n){document.getElementById('certname').focus();return}TS.certName=n;tsave();cert(app,n,score,total)}}};
+  const result=()=>{const ok=score>=need;TS.quiz=TS.quiz||{};const prev=TS.quiz[app];if(!prev||prev.t<total||score>=prev.s)TS.quiz[app]={s:score,t:total,at:new Date().toISOString().slice(0,10)};tsave();sync();
+   tourEl.innerHTML='';
+   const go=defName=>diplomaShow({app,course:courseName(app),answers:ans,score,total,need,name:ok?(TS.certName||(window.groupMe&&groupMe())||''):'',defName,onRetry:()=>quiz(app),onClose:()=>{window.badgeCheck&&badgeCheck()}});
+   if(ok&&!TS.certName&&!(window.groupMe&&groupMe()))meName().then(go);else go('')};
   ask()}}
 window.quiz=quiz;
 
