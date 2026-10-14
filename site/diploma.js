@@ -137,7 +137,7 @@ async function png(o){try{await document.fonts.load('800 40px "DM Sans"');await 
  x.fillStyle='#111312';x.font=`700 26px ${F}`;x.fillText(GU('u.certDate')+': '+o.date,L,cy+ch-90);
  const sx=rtl?cx+150:cx+cw-150,sy=cy+150,sr=96;x.save();x.shadowColor='rgba(0,0,0,.25)';x.shadowBlur=24;x.shadowOffsetY=10;x.fillStyle='#7ff0b5';x.beginPath();x.arc(sx,sy,sr,0,Math.PI*2);x.fill();x.restore();
  x.strokeStyle='#111312';x.lineWidth=3;x.beginPath();x.arc(sx,sy,sr*.82,0,Math.PI*2);x.stroke();
- x.save();x.translate(sx,sy);x.rotate(-.21);x.fillStyle='#111312';x.textAlign='center';x.direction='ltr';x.font=`800 30px ${F}`;x.textBaseline='middle';x.fillText(GU('u.certSeal'),0,0);x.restore();
+ x.save();x.translate(sx,sy);x.rotate(-.21);x.fillStyle='#111312';x.textAlign='center';x.direction='ltr';x.font=`800 23px ${F}`;x.textBaseline='middle';x.fillText(GU('u.certSeal'),0,0);x.restore();
  return new Promise(r=>c.toBlob(r,'image/png'))}
 
 window.diplomaShow=(o)=>{const need=o.need??Math.ceil(o.total*.8);const date=o.date||new Date().toISOString().slice(0,10);
