@@ -11,7 +11,7 @@ let G=null;try{G=JSON.parse(localStorage.getItem(LS)||'null')}catch(e){}
 const save=()=>{try{G?localStorage.setItem(LS,JSON.stringify(G)):localStorage.removeItem(LS)}catch(e){}};
 const q=new URLSearchParams(location.search),urlG=q.get('g'),urlKey=q.get('admin');
 if(urlG&&/^[a-z0-9]{6,32}$/.test(urlG)&&(!G||G.id!==urlG))G={id:urlG,name:'',mid:rand(16),me:''};
-if(G&&urlKey&&G.id===urlG)G.key=urlKey;
+if(G&&urlG&&G.id===urlG){if(urlKey)G.key=urlKey;else delete G.key}/* länken bestämmer rollen: personallänken ger alltid personalvyn */
 if(G&&!G.mid)G.mid=rand(16);
 save();
 if(G&&!G.me&&!G.key)window.GROUP_WAIT=true;
