@@ -8,7 +8,7 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 
 - [iPad-kassan](#ipad-kassan) – 15 guider i grundkursen och 21 övriga guider
 - [Backstage](#backstage) – 8 guider i grundkursen och 41 övriga guider
-- [Mobilkassan](#mobilkassan) – 8 guider i grundkursen och 15 övriga guider
+- [Mobilkassan](#mobilkassan) – 8 guider i grundkursen och 16 övriga guider
 
 ## iPad-kassan
 
@@ -1567,13 +1567,23 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 ##### Ändra en produkt från kassan
 
 1. Tryck **Kaffe**.
-2. Tryck **Cappuccino**.
-3. Pennan uppe till vänster öppnar produkten för redigering. Tryck på den.
+2. Håll fingret på **Bryggkaffe** en stund, ett så kallat långt tryck. Ett vanligt tryck lägger bara varan i korgen. Med musen håller du ner knappen i en halv sekund.
+3. Produkten öppnas med bild och beskrivning. Pennan uppe till vänster öppnar den för redigering. Tryck på den.
 4. Här ändrar du namn, produktgrupp och pris. Ändringen sparas i Backstage och syns i alla kassor.
 5. **Avhämtning** ger produkten 6 % moms när den säljs som take-away. Tryck på reglaget.
-6. **Save** sparar. **Save & copy** sparar och skapar en kopia att utgå från. Den här gången sparar vi inte.
-7. Tryck på pilen för att gå tillbaka utan att spara.
-8. **Klart!** Större ändringar som tillval och lagersaldo gör du enklast i Backstage.
+6. Längst ner byter du produktbild. **Take photo** fotograferar med enhetens kamera och **Add image** hämtar en bild som finns på enheten.
+7. **Save** sparar. **Save & copy** sparar och skapar en kopia att utgå från. Den här gången sparar vi inte.
+8. Tryck på pilen för att gå tillbaka utan att spara.
+9. **Klart!** En produkt som ligger i korgen går inte att redigera, så töm korgen först. Större ändringar som tillval och lagersaldo gör du enklast i Backstage.
+
+##### Visa produktbilder i katalogen
+
+1. Tryck på menyn uppe till vänster.
+2. Tryck **Product Catalog**.
+3. **Enable images on catalog buttons** slår på och av produktbilderna. Med bilder blir knapparna större, så färre produkter får plats på skärmen. Tryck på reglaget.
+4. Har du lagt in nya bilder i Backstage trycker du **Synchronize Product Catalog** så att kassan hämtar dem.
+5. Stäng menyn och titta på katalogen.
+6. **Klart!** Slå på bilderna igen på samma ställe. En egen bild lägger du till genom att hålla fingret på produkten, trycka på pennan och välja **Add image**.
 
 #### Kassa
 

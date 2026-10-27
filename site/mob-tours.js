@@ -116,13 +116,21 @@ X('mob-artikelrabatt','Försäljning','Rabatt på en artikel',[
  done('Rabatt på hela korgen ger du i stället via <b>FUNCTIONS → Discount</b>.')],{pre:fresh()});
 X('mob-redigera','Produkter','Ändra en produkt från kassan',[
  {el:'mb-grp-kaffe',d:'Tryck <b>Kaffe</b>.',on:'mb:grp'},
- {el:'mb-p-cappuccino',d:'Tryck <b>Cappuccino</b>.',on:'mb:prod'},
- {el:'mb-pedit',d:'Pennan uppe till vänster öppnar produkten för redigering. Tryck på den.',on:'mb:pedit'},
+ {el:'mb-p-bryggkaffe',d:'Håll fingret på <b>Bryggkaffe</b> en stund, ett så kallat långt tryck. Ett vanligt tryck lägger bara varan i korgen. Med musen håller du ner knappen i en halv sekund.',on:'mb:long',fill:()=>A.mblong(P('Bryggkaffe').id)},
+ {el:'mb-pedit',d:'Produkten öppnas med bild och beskrivning. Pennan uppe till vänster öppnar den för redigering. Tryck på den.',on:'mb:pedit'},
  {el:'in-mbpe_price',d:'Här ändrar du namn, produktgrupp och pris. Ändringen sparas i Backstage och syns i alla kassor.',next:1},
  {el:'mb-pe-take',d:'<b>Avhämtning</b> ger produkten 6 % moms när den säljs som take-away. Tryck på reglaget.',on:'mb:pe:tog'},
+ {el:'mb-pe-addimg',d:'Längst ner byter du produktbild. <b>Take photo</b> fotograferar med enhetens kamera och <b>Add image</b> hämtar en bild som finns på enheten.',next:1},
  {el:'mb-pe-save',d:'<b>Save</b> sparar. <b>Save &amp; copy</b> sparar och skapar en kopia att utgå från. Den här gången sparar vi inte.',next:1},
  {el:'mb-pedit-back',d:'Tryck på pilen för att gå tillbaka utan att spara.',on:'mb:back'},
- done('Större ändringar som tillval och lagersaldo gör du enklast i Backstage.')],{pre:fresh()});
+ done('En produkt som ligger i korgen går inte att redigera, så töm korgen först. Större ändringar som tillval och lagersaldo gör du enklast i Backstage.')],{pre:fresh()});
+X('mob-bilder','Produkter','Visa produktbilder i katalogen',[
+ {el:'mb-menu',d:'Tryck på menyn uppe till vänster.',on:'mb:menu'},
+ {el:'mb-m-catalog',d:'Tryck <b>Product Catalog</b>.',on:'mb:view:catsync'},
+ {el:'mb-pc-images',d:'<b>Enable images on catalog buttons</b> slår på och av produktbilderna. Med bilder blir knapparna större, så färre produkter får plats på skärmen. Tryck på reglaget.',on:'mb:set:images'},
+ {el:'mb-sync',d:'Har du lagt in nya bilder i Backstage trycker du <b>Synchronize Product Catalog</b> så att kassan hämtar dem.',next:1},
+ {el:'mb-close',d:'Stäng menyn och titta på katalogen.',on:'mb:close'},
+ done('Slå på bilderna igen på samma ställe. En egen bild lägger du till genom att hålla fingret på produkten, trycka på pennan och välja <b>Add image</b>.')],{pre:fresh({pre:m=>{(m.set||{}).images=true}})});
 X('mob-kassalada','Kassa','Lägg in och ta ut kontanter',[
  {el:'mb-functions',d:'Tryck <b>FUNCTIONS</b>.',on:'mb:sheet:fn'},
  {el:'mb-fn-drawer',d:'Tryck <b>Cash drawer</b>.',on:'mb:drawer'},
