@@ -50,5 +50,13 @@ S['p-pres']=MARBLE+`${shadow(70)}<rect x="96" y="34" width="58" height="44" rx="
 S['p-gift']=bg('#3a3f68','#16182b')+`${shadow(100)}<g transform="translate(125 52) rotate(-6)"><rect x="-46" y="-28" width="92" height="56" rx="8" fill="#6fd3a8"/><rect x="-46" y="-28" width="92" height="56" rx="8" fill="url(#gl)"/><text x="-36" y="-8" font-family="Georgia,serif" font-weight="800" font-size="16" fill="#111">yabie</text><text x="-36" y="10" font-family="Arial" font-weight="700" font-size="8" fill="#111" opacity=".75">PRESENTKORT</text><rect x="16" y="8" width="22" height="14" rx="3" fill="#111" opacity=".15"/></g><defs><linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>`;
 const uri=svg=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${svg}</svg>`);
 window.PRODIMG={};Object.keys(S).forEach(k=>{window.PRODIMG[k]=uri(S[k])});
-window.prodImg=p=>p&&(p.img||window.PRODIMG[p.id])||'';
+/* Riktiga foton från Unsplash (fri licens, unsplash.com/license). SVG-illustrationen ligger under som reserv om fotot inte laddar. */
+const PH={"p1": "1514432324607-a09d9b4aefdd", "p2": "1509042239860-f550ce710b93", "p3": "1563090308-5a7889e40542", "p4": "1510591509098-f4fdc6d0ff04", "p5": "1534778101976-62847782c213", "p6": "1519532059956-a63a37af5deb", "p7": "1461023058943-07fcbe16d735", "p8": "1578899952107-9c390f1af1b7", "p9": "1542990253-0d0f5be5f0ed", "p10": "1544787219-7f47ccb76574", "p11": "1775582662806-2972d4878175", "p12": "1633785587635-a5c1df91fa90", "p13": "1691480162735-9b91238080f6", "p14": "1549007994-cb92caebd54b", "p15": "1676300186098-9b5ae9916e3c", "p16": "1729698599206-3e47d9a4c019", "p17": "1647505794572-0a6d945d664d", "p18": "1646530208887-8a791bff4701", "p19": "1523362628745-0c100150b504", "p20": "1600271886742-f049cd451bba", "p21": "1623084921164-4a8c5c37a912", "p22": "1780660231448-7f0aa4d236e9", "p23": "1616241673111-508b4662c707", "p-lös": "1447933601403-0c6688de566e", "p-pres": "1616429368325-d5d7542b0ec3", "p-gift": "1545785028-23ee5937cf69"};
+window.PRODPHOTO={};Object.keys(PH).forEach(k=>{window.PRODPHOTO[k]='https://images.unsplash.com/photo-'+PH[k]+'?w=480&h=300&fit=crop&q=70&auto=format'});
+window.prodImg=p=>p&&(p.img||window.PRODPHOTO[p.id]||window.PRODIMG[p.id])||'';
+const q=u=>'url(&quot;'+u+'&quot;)';
+/* för background-image: foto överst, illustration under */
+window.prodBgImg=p=>{const a=prodImg(p),b=p&&window.PRODIMG[p.id];return b&&b!==a?q(a)+','+q(b):q(a)};
+/* för background-shorthand */
+window.prodBg=p=>{const a=prodImg(p),b=p&&window.PRODIMG[p.id];return q(a)+' center/cover no-repeat'+(b&&b!==a?','+q(b)+' center/cover no-repeat':'')+',#000'};
 })();
