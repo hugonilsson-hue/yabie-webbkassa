@@ -173,8 +173,8 @@ const st=document.createElement('style');st.textContent=`
 #pos .kmb .kcb.kon::after{content:'✓';color:#fff;font-size:12px}
 #pos .kmb .kmtoast{pointer-events:none;position:absolute;left:50%;bottom:80px;transform:translateX(-50%);background:#323232;color:#fff;border-radius:6px;padding:10px 14px;font-size:12.5px;z-index:60;white-space:nowrap}
 #pos .kmb .kswc{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-family:Inter,sans-serif}
-#pos .kmb .kswc.swp,#pos .kmb .kswc.swk{background:linear-gradient(175deg,#3a63c9,#2a4aa6);color:#fff}#pos .kmb .kswc.swp{cursor:pointer}
-#pos .kmb .kswc.swo{background:linear-gradient(175deg,#eef8ff,#c4e6ff);color:#162447}
+#pos .kmb .kswc.swp,#pos .kmb .kswc.swk{background:linear-gradient(175deg,#5584cf,#4672bf);color:#fff}#pos .kmb .kswc.swp{cursor:pointer}
+#pos .kmb .kswc.swo{background:linear-gradient(175deg,#b9e9fb,#9edcf6);color:#162447}
 #pos .kmb .kswc .swcl{width:64px;height:64px;margin-bottom:14px}
 #pos .kmb .kswc h6{margin:0;color:inherit;font:800 34px/1.12 Inter,sans-serif}#pos .kmb .kswc.swo h6{font-size:28px;font-weight:600}
 #pos .kmb .kswc .swam{font:700 18px Inter,sans-serif;margin-top:12px}
