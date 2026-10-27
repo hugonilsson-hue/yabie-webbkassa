@@ -6,7 +6,7 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 
 ## Innehåll
 
-- [iPad-kassan](#ipad-kassan) – 15 guider i grundkursen och 21 övriga guider
+- [iPad-kassan](#ipad-kassan) – 15 guider i grundkursen och 22 övriga guider
 - [Backstage](#backstage) – 8 guider i grundkursen och 41 övriga guider
 - [Mobilkassan](#mobilkassan) – 8 guider i grundkursen och 16 övriga guider
 
@@ -505,6 +505,16 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 4. Kassören loggar in. Ange Baristans PIN **0000**.
 5. **Inloggad** – Kassörens namn visas nu i kassan och följer med varje köp. Med **Byt kassör** loggar nästa person in.
 6. **Klart!** Kassörinloggning kan vara valfri, ligga kvar på senast vald kassör eller vara obligatorisk så att kassan låses efter varje köp. Läget ställer du in under Min butik → Kassörhantering.
+
+#### Försäljning
+
+##### Ta betalt med Swedbank Cloud
+
+1. Lägg till en **Bryggkaffe**.
+2. Tryck **Swedbank Cloud**. Beloppet skickas direkt till kortterminalen via internet, utan kabel eller Bluetooth.
+3. Terminalen visar **Betala med kort** och beloppet. Kunden blippar sitt kort eller sin telefon mot skärmen. Tryck på terminalens skärm.
+4. **Kontroll pågår** – Terminalen kontrollerar betalningen och visar sedan **Köp godkänt**. Kassan registrerar köpet av sig själv, du behöver inte trycka på något.
+5. **Klart!** Kunden får kvittot som vanligt. Avbryter kunden med den röda knappen på terminalen kan du välja ett annat betalsätt.
 
 ## Backstage
 

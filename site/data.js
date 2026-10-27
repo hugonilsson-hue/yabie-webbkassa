@@ -27,7 +27,7 @@ function seed(){
   return {
     v:1, store:'Kaffebaren', register:'Kassa 1',
     groups, products, startPages, showGroups:true,
-    payments:[pm('card','Kontokort','card',true,false),pm('swish','Swish','swish',true,false),pm('cash','Kontant','cash',false,false),pm('gift','Presentkort','gift',true,false),pm('invoice','Faktura','invoice',false,false)],
+    payments:[pm('swcloud','Swedbank Cloud','card',true,false),pm('card','Kontokort','card',true,false),pm('swish','Swish','swish',true,false),pm('cash','Kontant','cash',false,false),pm('gift','Presentkort','gift',true,false),pm('invoice','Faktura','invoice',false,false)],
     terminals:[], printer:{name:'mC-Print3 E874',connected:true,receipts:'receipt'},
     display:{ip:'',auto:true}, discounts:[{id:'d1',name:'Personal',pct:10},{id:'d2',name:'Student',pct:15},{id:'d3',name:'Stammis',pct:20}],
     cashiers:[{name:'Ägare',role:'Admin'},{name:'Barista',role:'Kassör'}],

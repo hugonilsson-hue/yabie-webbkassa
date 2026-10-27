@@ -85,7 +85,7 @@ const IC={
  drawer:I('<path d="M3 10h18v9H3zM6 6h12l3 4H3zM10 14h4"/>'),
 };
 let itemSub=()=>'';
-const PMI=id=>IC[{card:'card',swish:'swish',cash:'cash',gift:'gift',invoice:'invoice'}[id]]||IC.pay;
+const PMI=id=>IC[{swcloud:'card',card:'card',swish:'swish',cash:'cash',gift:'gift',invoice:'invoice'}[id]]||IC.pay;
 
 /* ── cart math ── */
 const C=()=>S.cart;
@@ -167,7 +167,7 @@ function rightPanel(){
     <button class="${S.courses&&S.courses.on?'':'off'}" data-a="m-courses">${IC.cloche} ${UI.showCourses?'Hide':'Show'} Courses</button><hr><button data-a="openret" data-g="more-openret">${IC.ret} Open return</button></div>`:'';
   return `<div class="pnl rp"><div class="tbar">${bar}</div>${head}<div class="cart-l" id="cartl" style="bottom:${788-15-totTop+8}px">${items}</div><div class="foot" style="top:${totTop}px;height:auto"></div>${total}${keys}${bb}${ph}${more}</div>`;
 }
-const qName=p=>({card:'Kontokort',swish:'Swish',cash:'Kontant',gift:'Presentkort',invoice:'Faktura'}[p.id]||p.name);
+const qName=p=>({swcloud:'Swedbank Cloud',card:'Kontokort',swish:'Swish',cash:'Kontant',gift:'Presentkort',invoice:'Faktura'}[p.id]||p.name);
 
 /* ── functions ── */
 const FN={
@@ -185,6 +185,7 @@ const FN={
 /* ── payment ── */
 function pay(mid){
   const c=C();if(!c.items.length)return;UI.pop=null;
+  if(mid==='swcloud'&&window.swCloudPay){swCloudPay();return}
   if(mid==='swish'){openModal('swish');return}
   if(mid==='cash'){if(S.drawer&&S.drawer.float==null&&!c.ret){UI.f={amt:''};openModal('openbal');return}UI.f={cash:''};openModal('cash');return}
   if(mid==='gift'){UI.f={code:''};openModal('giftpay');return}
