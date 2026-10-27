@@ -8,7 +8,7 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 
 - [iPad-kassan](#ipad-kassan) – 15 guider i grundkursen och 22 övriga guider
 - [Backstage](#backstage) – 8 guider i grundkursen och 41 övriga guider
-- [Mobilkassan](#mobilkassan) – 8 guider i grundkursen och 16 övriga guider
+- [Mobilkassan](#mobilkassan) – 8 guider i grundkursen och 17 övriga guider
 
 ## iPad-kassan
 
@@ -1549,6 +1549,19 @@ Guiderna är uppdelade per del: **iPad-kassan**, **Backstage** och **Mobilkassan
 6. **Klart!** Gör en Z-rapport varje dag du har sålt något. Växelkassan nollställs och anges igen vid nästa kontantköp.
 
 ### Övriga guider
+
+#### Betalning
+
+##### Ta betalt med Swedbank Cloud
+
+1. Tryck **CHARGE**.
+2. Tryck **Swedbank Cloud**. Betalningen tas direkt i den mobila kassan, med beloppet redan ifyllt.
+3. Skärmen visar **Betala med kort** och beloppet. Kunden blippar sitt kort eller sin telefon mot enheten. Tryck på skärmen.
+4. **Kontroll pågår** – Betalningen kontrolleras och skärmen visar sedan **Köp godkänt**. Kassan registrerar köpet av sig själv, du behöver inte trycka på något.
+   - *Om v3:* Sunmi V3 har en inbyggd kvittoskrivare upptill. Tryck **Print** så skrivs kvittot ut direkt. Kunden kan också få det via **SMS** eller **Email**.
+   - *Om a920:* PAX A920 Pro har en inbyggd kvittoskrivare. Tryck **Print** så skrivs kvittot ut direkt. Kunden kan också få det via **SMS** eller **Email**.
+   - *Om a35:* Samsung A35 har ingen inbyggd skrivare. Kunden kan få kvittot via **SMS** eller **Email**, eller så kopplar du en skrivare. Tryck nu **Skip receipt**.
+5. **Klart!** Betalningen finns nu i orderhistoriken och i Z-rapporten. Vill kunden avbryta trycker du **Avbryt** innan kortet blippas.
 
 #### Försäljning
 

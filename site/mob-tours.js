@@ -59,6 +59,13 @@ T('mob-kort','Betalning','Ta betalt med kort',[
  {el:'mb-pay-card',when:{mobdev:'a35'},d:'När terminalen har godkänt köpet: tryck <b>Kontokort Trådlös</b>.',on:'mb:paid'},
  rcpt,
  done('Kortbetalningen finns nu i orderhistoriken och i Z-rapporten.')],{pre:fresh({tab:'basket',items:[['Caffè latte'],['Croissant']]})});
+X('mob-swcloud','Betalning','Ta betalt med Swedbank Cloud',[
+ {el:'mb-charge',d:'Tryck <b>CHARGE</b>.',on:'mb:sheet:pay'},
+ {el:'mb-pay-swcloud',d:'Tryck <b>Swedbank Cloud</b>. Betalningen tas direkt i den mobila kassan, med beloppet redan ifyllt.',on:'mb:swc'},
+ {el:'mb-sw-screen',d:'Skärmen visar <b>Betala med kort</b> och beloppet. Kunden blippar sitt kort eller sin telefon mot enheten. Tryck på skärmen.',on:'mb:sw:tap'},
+ {t:'Kontroll pågår',d:'Betalningen kontrolleras och skärmen visar sedan <b>Köp godkänt</b>. Kassan registrerar köpet av sig själv, du behöver inte trycka på något.',until:()=>U().view!=='swc'},
+ rcpt,
+ done('Betalningen finns nu i orderhistoriken och i Z-rapporten. Vill kunden avbryta trycker du <b>Avbryt</b> innan kortet blippas.')],{pre:fresh({tab:'basket',items:[['Bryggkaffe']],pre:()=>{const p=S.payments.find(x=>x.id==='swcloud');if(p)p.enabled=true}})});
 T('mob-parkera','Försäljning','Parkera en order på bord',[
  {el:'mb-park',d:'Gästen vill betala senare. Tryck <b>Park</b>.',on:'mb:parkview'},
  {el:'mb-tbl-x',sel:()=>`#pos [data-g="mb-tbl-${slug(firstTable().name)}"]`,d:'Borden kommer från bordskartan i Backstage. Fyllda bord är lediga, vita med färgad kant har en order. Tryck på första bordet.',on:'mb:conf'},
